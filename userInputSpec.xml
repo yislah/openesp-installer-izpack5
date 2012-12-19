@@ -1,0 +1,97 @@
+<userInput>
+
+    <panel id="UserInputPanel.0">
+
+        <field size="2" txt="Custom overlay ZIP" type="title" id="custom.overlay.title"/>
+
+        <field align="left" txt="Custom overlay zip location" type="staticText" id="custom.overlay.ziplocation" conditionid="doOverlay"/>
+        <field align="left" type="file" variable="solr.overlay.zip" conditionid="doOverlay">
+            <spec set="$customOverlay" size="40" txt=""/>
+        </field>
+       	<field type="space" />
+
+        <field type="space" />
+	<field type="check" variable="solr.overlay.check" align="right">
+ 	<spec txt="Check this box to IGNORE custom overlay" id="custom.overlay.ignore" revalidate="yes" true="true" false="false" set="${solr.overlay.check}"/>
+	</field>
+    </panel>
+
+    <panel  id="UserInputPanel.1">
+
+
+        <field size="2" txt="Custom Solr config Options" type="title" id="custom.title"/>
+        <field align="left" txt="Custom Solr config zip location" type="staticText" id="custom.ziplocation" conditionid="doSolrConfig"/>
+        <field align="left" type="file" variable="solr.config.zip" conditionid="doSolrConfig">
+            <spec set="$customSolrConfig" size="40" txt=""/>
+        </field>
+        <field align="left" txt="Custom Solr config destination" type="staticText" id="custom.destination" conditionid="doSolrConfig"/>
+        <field align="left" type="dir" variable="solr.config.dest" conditionid="doSolrConfig">
+            <spec set="$INSTALL_PATH/conf/solr-custom" size="40" txt="" mustExist="false" create="${solr.custom.check}"/>
+        </field>
+
+	<field type="space" />
+	<field type="space" />
+	<field type="check" variable="solr.custom.check" align="right">
+ 	<spec txt="Check this box to IGNORE pre-existing Solr configuration" id="custom.ignore" revalidate="yes" true="true" false="false" set="${solr.custom.check}"/> 
+	</field> 
+
+
+    </panel>
+
+    <panel  id="UserInputPanel.2">
+        <field size="2" txt="OpenESP options" type="title"/>
+        <field align="left" txt="SOLR_HOME location" type="staticText" id="options.solr.home"/>
+        <field align="left" type="dir" variable="solr.solr.home">
+            <spec set="$solrHome" size="40" txt="" mustExist="false" create="true"/>
+        </field>
+        <field align="left" txt="Solr's data dir" type="staticText" id="options.solr.data"/>
+        <field align="left" type="dir" variable="solr.data.dir">
+            <spec set="$INSTALL_PATH/data/solr" size="40" txt="" mustExist="false" create="true" />
+        </field>
+        <field align="left" txt="Solr's Log dir" type="staticText" id="options.solr.log"/>
+        <field align="left" type="dir" variable="solr.log.dir">
+            <spec set="$INSTALL_PATH/logs/solr" size="40" txt="" mustExist="false" create="true"/>
+        </field>
+        <field align="left" txt="Max memory for Jvm" type="staticText" id="options.jvm.mem" />
+        <field align="left" type="rule" variable="solr.jvm.mem">
+            <spec set="0:2048" size="25" txt="" layout="N:4:4" resultFormat="specialSeparator" separator="."/>
+		<validator class="com.izforge.izpack.util.NotEmptyValidator" txt="The max memory for JVM is  mandatory!" id="options.jvm.msg" />
+        </field>
+        <field align="left" txt="Port number" type="staticText" id="options.port.number"/>
+        <field align="left" type="rule" variable="solr.port.number">
+            <spec set="0:18080" size="25" txt="" layout="N:5:5" resultFormat="specialSeparator" separator="."/>
+		<validator class="com.izforge.izpack.util.NotEmptyValidator" txt="The port number is mandatory!" id="options.port.msg" />
+        </field>
+        <field align="left" txt="SSL Port number" type="staticText" id="options.sslport.number"/>
+        <field align="left" type="rule" variable="solr.sslport.number">
+            <spec set="0:18443" size="25" txt="" layout="N:5:5" resultFormat="specialSeparator" separator="." />
+		<validator class="com.izforge.izpack.util.NotEmptyValidator" txt="The SSL port number is mandatory!" id="options.sslport.msg" />
+        </field>
+	<field type="check" variable="solr.cloud" align="left">
+ 	<spec txt="Enable Solr Cloud" id="options.cloud" true="true" false="false" set="false"/>
+         </field>
+	<field type="check" variable="solr.start.service" align="left" conditionid="WindowsServicePackIsSelected">
+ 	<spec txt="Check this box to START Windows service after install" id="options.start.service" true="true" false="false" set="true"/> 
+	</field> 
+
+    </panel>
+
+    <panel  id="UserInputPanel.3">
+        <field size="2" txt="Solr Cloud options" type="title"/>
+ 	<field type="check" variable="solr.dzkrun" align="left">
+ 	<spec txt="Start local Zoo keeper" id="options.dzkrun" true="true" false="false" set="true"/>
+         </field>
+ 	<field type="space" />
+ 	<field align="left" txt="ZK host(s) (list of host:port with + separator)" type="staticText" id="options.zkhost" />
+        <field type="text" variable="solr.dzkhost">
+               <spec txt=" " size="60" set=""/>
+          <validator class="com.izforge.izpack.util.RegularExpressionValidator"  txt="Invalid zkhost input! it should be in the form of list of host:port with + separator" id="options.zkhost.msg">
+    <param
+        name="pattern"
+        value="(([A-Za-z0-9_\.-]+):([0-9]+))(\+([A-Za-z0-9_\.-]+):([0-9]+))*"
+    />
+  </validator>
+        </field>
+    </panel>
+
+</userInput>

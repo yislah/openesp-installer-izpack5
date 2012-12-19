@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<project default="dist">
+    <property environment="env"/>
+    <property name="product.name" value="OpenESP"/>
+    <property name="product.version" value="0.1"/>
+    <property name="launch4j.dir" location="${env.LAUNCH4J_HOME}" />
+    <property name="izpack5.dir" location="${env.IZPACK_HOME}" />
+
+    <path id="build.classpath">
+        <fileset dir="${izpack5.dir}">
+            <include name="lib/*.jar" />
+        </fileset>
+    </path>
+    <taskdef name="IzPack" classpathref="build.classpath" classname="com.izforge.izpack.ant.IzPackTask" />
+
+    <taskdef name="launch4j"
+        classname="net.sf.launch4j.ant.Launch4jTask"
+        classpath="${launch4j.dir}/launch4j.jar:${launch4j.dir}/lib/xstream.jar" />
+                
+    <condition property="IZPACK_HOME" value="${env.IZPACK_HOME}" else="../IzPack">
+        <isset property="env.IZPACK_HOME"/>
+        </condition>
+        
+    <target name="javaCompile">
+            <javac srcdir="." />
+    </target>
+
+    <target name="jarUtil" depends="javaCompile">
+        <jar destfile="utilOpenESP.jar"
+             basedir="."
+             includes="**/*.class"
+             />
+    </target>
+    
+    <target name="IzpackCompile" depends="jarUtil">
+        <echo message="Makes the jar installer using IzPack"/>
+        <IzPack input="${basedir}/openesp-install.xml"
+            output="${basedir}/openesp-install.jar"
+            installerType="standard"
+            basedir="${basedir}"
+            izPackDir="${izpack5.dir}"/>
+    </target>
+        
+    <target name="dist" depends="IzpackCompile">
+        <echo message="Makes the exe installer"/>
+        <launch4j configFile="openesp-launch4j.xml" />
+    </target>
+
+    <target name="clean">
+        <delete file="${basedir}/openesp-install.jar"/>
+        <delete file="${basedir}/OpenESP-Setup.exe"/>
+        <delete file="${basedir}/utilOpenESP.jar"/>
+        <delete file="${basedir}/TestSolrConfig.class"/>
+        <delete file="${basedir}/TestOverlay.class"/>
+        <delete file="${basedir}/PortReplace.class"/>
+    </target>
+</project>

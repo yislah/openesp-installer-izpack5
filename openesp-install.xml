@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="yes"?>
+<installation version="5.0">
+    <info>
+        <appname>OpenESP</appname>
+        <appversion>0.1</appversion>
+        <authors>
+            <author email="openesp@openesp.org" name="OpenESP community"/>
+        </authors>
+        <url>http://www.openesp.org/</url>
+        <uninstaller name="Uninstaller.jar" write="yes"/>
+        <javaversion>1.6.0</javaversion>
+        <requiresjdk>no</requiresjdk>
+        <writeinstallationinformation>yes</writeinstallationinformation>
+        <run-privileged condition="izpack.windowsinstall|izpack.linuxinstall"/>
+    </info>
+
+    <installerrequirements>
+        <installerrequirement condition="izpack.windowsinstall|izpack.linuxinstall" message="This installer could only be run on Windows or Linux operating systems."/>
+        <installerrequirement condition="arch64" message="This installer needs a 64bit OS and a 64bit JVM"/>
+    </installerrequirements>
+
+    <conditions>
+        <condition type="packselection" id="packCustomSolrConfigIsSelected">
+            <name>Custom Solr Config</name>
+        </condition>
+        <condition type="packselection" id="packCustomOverlayIsSelected">
+            <name>Custom overlay</name>
+        </condition>
+        <condition type="not" id="NotPackCustomSolrConfigIsSelected">
+            <condition type="ref" refid="packCustomSolrConfigIsSelected"/>
+        </condition>
+        <condition type="variable" id="CustomSolrCheckBoxEnabled">
+            <name>solr.custom.check</name>
+            <value>true</value>
+        </condition>
+        <condition type="variable" id="NotCustomSolrCheckBoxEnabled">
+            <name>solr.custom.check</name>
+            <value>false</value>
+        </condition>
+        <condition type="packselection" id="WindowsServicePackIsSelected">
+            <name>Windows service</name>
+        </condition>
+        <condition type="java" id="checkSolrConfig">
+            <java>
+                <class>TestSolrConfig</class>
+                <field>customSolrConfig</field>
+            </java>
+            <returnvalue type="boolean">true</returnvalue>
+        </condition>
+        <condition type="java" id="checkOverlay">
+            <java>
+                <class>TestOverlay</class>
+                <field>customOverlay</field>
+            </java>
+            <returnvalue type="boolean">true</returnvalue>
+        </condition>
+        <condition type="variable" id="SolrCloudEnabled">
+            <name>solr.cloud</name>
+            <value>true</value>
+        </condition>
+        <condition type="variable" id="arch64">
+                   <name>SYSTEM_sun_arch_data_model</name>
+                   <value>64</value>
+        </condition>
+        <condition type="variable" id="ignoreOverlay">
+            <name>solr.overlay.check</name>
+            <value>true</value>
+        </condition>
+         <condition type="not" id="doOverlay">
+            <condition type="ref" refid="ignoreOverlay"/>
+        </condition>
+        <condition type="variable" id="ignoreSolrConfig">
+            <name>solr.custom.check</name>
+            <value>true</value>
+        </condition>
+         <condition type="not" id="doSolrConfig">
+            <condition type="ref" refid="ignoreSolrConfig"/>
+        </condition>
+    </conditions>
+
+    <dynamicvariables>
+        <variable name="customSolrConfig" value="$SYSTEM_user_dir/solr-config.zip" condition="checkSolrConfig"/>
+        <variable name="customSolrConfig" value="" condition="!checkSolrConfig"/>
+        <variable name="customOverlay" value="$SYSTEM_user_dir/openesp-overlay.zip" condition="checkOverlay"/>
+        <variable name="customOverlay" value="" condition="!checkOverlay"/>
+        <variable name="solrHome" value="$INSTALL_PATH/conf/solr" condition="NotPackCustomSolrConfigIsSelected|CustomSolrCheckBoxEnabled"/>
+        <variable name="solrHome" value="$solr.config.dest" condition="packCustomSolrConfigIsSelected+NotCustomSolrCheckBoxEnabled"/>
+        <variable name="solrCloudJvm" value="-Dzkrun -DzkHost=$solr.dzkhost" condition="SolrCloudEnabled"/>
+        <variable name="solrCloudJvm" value="" condition="!SolrCloudEnabled"/>
+    </dynamicvariables>
+    <guiprefs height="480" resizable="no" width="640">
+        <modifier key="useFlags" value="yes"/>
+        <modifier key="langDisplayType" value="default"/>
+    </guiprefs>
+    <locale>
+        <langpack iso3="eng"/>
+        <!-- TODO: Norwegian translation <langpack iso3="nor"/> -->
+        <!-- TODO: Swedish translation <langpack iso3="swe"/> -->
+    </locale>
+    <resources>
+        <res id="userInputSpec.xml" src="userInputSpec.xml"/>
+        <res id="userInputLang.xml_eng" src="userInputLang_eng.xml"/>
+        <res id="userInputLang.xml_nor" src="userInputLang_nor.xml"/>
+        <res id="LicencePanel.licence" src="LICENSE.txt"/>
+        <res id="InfoPanel.info" src="Readme.txt"/>
+        <res id="InfoPanel.info_nor" src="Readme_nor.txt"/>
+        <res id="shortcutSpec.xml" src="shortcutSpec.xml"/>
+    </resources>
+    <panels>
+        <panel classname="CheckedHelloPanel" id="CheckedHelloPanel">
+                <os family="windows"/>
+        </panel>
+        <panel classname="InfoPanel" id="myInfoPanel"/>
+        <panel classname="LicencePanel" id="myLicencePanel"/>
+        <panel classname="PacksPanel" id="myPacksPanel"/>
+        <panel classname="TargetPanel" id="myTargetPanel"/>
+        <panel classname="UserInputPanel" id="UserInputPanel.0" condition="packCustomOverlayIsSelected">
+               <help iso3="eng" src="CustomOverlayPanelHelp_eng.html"/>
+        </panel>
+        <panel classname="UserInputPanel" id="UserInputPanel.1" condition="packCustomSolrConfigIsSelected">
+            <help iso3="eng" src="CustomConfigPanelHelp_eng.html"/>
+            <help iso3="nor" src="CustomConfigPanelHelp_nor.html"/>
+        </panel>
+        <panel classname="UserInputPanel" id="UserInputPanel.2"/>
+        <panel classname="UserInputPanel" id="UserInputPanel.3" condition="SolrCloudEnabled"/>
+        <panel classname="InstallPanel" id="myInstallPanel"/>
+        <panel classname="ShortcutPanel" id="myshortcutpanel">
+               <os family="windows"/>
+        </panel>
+        <panel classname="FinishPanel" id="myFinishPanel"/>
+    </panels>
+
+    <packs>
+        <pack name="OpenESP" preselected="yes" required="yes" id="packOpenESP">
+            <description>The required base package including:
+            Apache Solr
+            Apache Tomcat
+            </description>
+            <file override="update" src="openesp/openesp.zip" targetdir="$INSTALL_PATH/" unpack="true"/>
+            <file src="uninstall.bat" targetdir="$INSTALL_PATH/Uninstaller"/>
+            <file src="install" targetdir="$INSTALL_PATH/.temp"/>
+            <file src="openesp.sh" targetdir="$INSTALL_PATH" condition="izpack.linuxinstall"/>
+            
+            <parsable targetfile="$INSTALL_PATH/openesp.sh" os="unix" condition="izpack.linuxinstall"/>
+            <executable targetfile="$INSTALL_PATH/openesp.sh" stage="never" keep="true" condition="izpack.linuxinstall"/>
+            
+            <parsable targetfile="$INSTALL_PATH/.temp/install/linuxUtil.sh" os="unix" condition="izpack.linuxinstall"/>
+            <executable targetfile="$INSTALL_PATH/.temp/install/linuxUtil.sh" stage="never" keep="true" condition="izpack.linuxinstall"/>
+
+            <executable targetfile="$INSTALL_PATH/.temp/install/unpackLinux.sh" stage="never" keep="true" condition="izpack.linuxinstall"/>
+
+            <executable targetfile="openesp-install.jar" class="PortReplace" type="jar" keep="true" stage="postinstall">
+                   <args>
+                   <arg value="$INSTALL_PATH/tomcat/conf/server.xml"/>
+                   <arg value="${solr.port.number}"/>
+                   <arg value="${solr.sslport.number}"/>
+                   </args>
+            </executable>
+            
+             <executable targetfile="$INSTALL_PATH/.temp/install/linuxUtil.sh" stage="postinstall" keep="true" condition="izpack.linuxinstall"/>
+
+
+        </pack>
+
+        <pack name="Custom overlay" preselected="no" required="no" id="packCustomOverlay">
+            <description>Installs a custom OpenESP overlay from a zip file. The zip file will be unpacked inside the install location. This can be used to automatically add your own custom configuration to the install. If you name the file openesp-overlay.zip, it will be automatically detected and pre-filled.</description>
+
+            <executable targetfile="$INSTALL_PATH/.temp/install/unpackOverlay.bat" stage="postinstall" keep="true" condition="izpack.windowsinstall+packCustomOverlayIsSelected+doOverlay">
+                <os family="windows"/>
+                <args>
+                    <arg value="$INSTALL_PATH\.temp\install"/>
+                    <arg value="${solr.overlay.zip}"/>
+                    <arg value="$INSTALL_PATH"/>
+                </args>
+            </executable>
+            
+
+            <executable targetfile="$INSTALL_PATH/.temp/install/unpackLinux.sh" stage="postinstall" keep="true" condition="izpack.linuxinstall+packCustomOverlayIsSelected+doOverlay" os="unix">
+                 <os family="unix"/>
+                 <args>
+                    <arg value="${solr.overlay.zip}"/>
+                    <arg value="$INSTALL_PATH"/>
+                </args>
+            </executable>
+
+
+            <executable targetfile="openesp-install.jar" class="PortReplace" type="jar" keep="true" stage="postinstall" condition="packCustomOverlayIsSelected+doOverlay">
+                   <args>
+                   <arg value="$INSTALL_PATH/tomcat/conf/server.xml"/>
+                   <arg value="${solr.port.number}"/>
+                   <arg value="${solr.sslport.number}"/>
+                   </args>
+            </executable>
+        </pack>
+
+        <pack name="Custom Solr Config" preselected="yes" required="no" id="CustomSolrConfig">
+            <description>Installs a custom Solr config from a zip file. The zip file will be unpacked in conf/solr-custom. If a file with name solr-config.zip exists in current directory it will be pre-selected.</description>
+
+            <executable targetfile="$INSTALL_PATH/.temp/install/unpackConfig.bat" stage="postinstall" keep="true" condition="izpack.windowsinstall+packCustomSolrConfigIsSelected+NotCustomSolrCheckBoxEnabled">
+                 <os family="windows"/>
+                     <args>
+                    <arg value="$INSTALL_PATH\.temp\install"/>
+                    <arg value="${solr.config.zip}"/>
+                    <arg value="${solr.config.dest}"/>
+                </args>
+            </executable>
+            
+            <executable targetfile="$INSTALL_PATH/.temp/install/unpackLinux.sh" stage="postinstall" keep="true" condition="izpack.linuxinstall+packCustomSolrConfigIsSelected+NotCustomSolrCheckBoxEnabled">
+                 <os family="unix"/>
+                     <args>
+                    <arg value="${solr.config.zip}"/>
+                    <arg value="${solr.config.dest}"/>
+                </args>
+            </executable>
+
+
+
+        </pack>
+
+
+        <pack name="Windows service" preselected="yes" required="no" id="WindowsService" condition="izpack.windowsinstall">
+        <os family="windows"/>
+            <description>Installs service which starts OpenESP automatically when computer starts</description>
+
+            <executable targetfile="$INSTALL_PATH/.temp/install/createService.bat" stage="postinstall" keep="true" condition="WindowsServicePackIsSelected">
+                <args>
+                    <arg value="${solr.jvm.mem}"/>
+                    <arg value="$INSTALL_PATH"/>
+                    <arg value="$APP_VER"/>
+                    <arg value="${solr.solr.home}"/>
+                    <arg value="${solr.data.dir}"/>
+                    <arg value="${solr.log.dir}"/>
+                    <arg value="${solr.start.service}"/>
+                    <arg value="$JAVA_HOME"/>
+                    <arg value="${solr.cloud}"/>
+                    <arg value="${solr.dzkrun}"/>
+                    <arg value="${solr.dzkhost}"/>
+                </args>
+            </executable>
+
+            <executable targetfile="$INSTALL_PATH/.temp/install/delService.bat" stage="uninstall" keep="true" condition="WindowsServicePackIsSelected">
+                <args>
+                    <arg value="$INSTALL_PATH"/>
+                </args>
+            </executable>
+        </pack>
+
+    </packs>
+    <jar src="utilOpenESP.jar" stage="both"/>
+    <listeners>
+        <listener installer="RegistryInstallerListener"  classname="RegistryInstallerListener" stage="install" uninstaller="RegistryUninstallerListener">
+            <os family="windows"/>
+        </listener>
+    </listeners>
+    
+    <natives>
+    <native type="3rdparty" name="COIOSHelper.dll" stage="both">
+        <os family="windows"/>
+    </native>
+    <native type="3rdparty" name="COIOSHelper_x64.dll" stage="both">
+        <os family="windows"/>
+    </native>
+    <native type="izpack" name="ShellLink.dll"/>
+    <native type="izpack" name="ShellLink_x64.dll"/>
+    </natives>
+
+</installation>
