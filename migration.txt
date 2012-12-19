@@ -1,0 +1,25 @@
+1) minor changes to the build.xml     (adding a build.classpath to specify where to find izpack jar files)
+
+2) changing <installation version="5.0">
+
+3)  wrap the <native> elements with <natives> ... </natives>
+
+4)  adding classname and stage to the registryInstaller listener:
+
+  <listener installer="RegistryInstallerListener"  classname="RegistryInstallerListener" stage="install" uninstaller="RegistryUninstallerListener">
+
+5)  the packselection condition previously required that a packid element be provided indicating the pack id.
+E.g.:
+
+        <condition type="packselection" id="WindowsServicePackIsSelected">
+            <packid>WindowsService</packid>
+        </condition>
+,the <packid> element has been changed to <name> E.g.
+
+        <condition type="packselection" id="WindowsServicePackIsSelected">
+            <name>Windows service</name>
+        </condition>
+
+6) In userInputSpec.xml
+ <panel> requires attribute 'id' (meaning the id of the panel as defined in openesp-install.xml)
+Also The panel.order attribute has been removed from the userInputSpec.xml
